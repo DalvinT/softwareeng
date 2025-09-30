@@ -4,8 +4,6 @@ SID: YOUR SID
 File: boggle_solver.py
 """
 
-# No external libraries; keep it plain Python.
-
 class Boggle:
     def __init__(self, grid=None, dictionary=None):
         self.grid = []
@@ -19,25 +17,25 @@ class Boggle:
         if dictionary is not None:
             self.setDictionary(dictionary)
 
-    # ----- required API -----
+    # ----- API required by assignment -----
     def setGrid(self, grid):
-        # Normalize to UPPERCASE; tiles can be multi-letter like "Qu", "St", "Ie"
-        self.grid = [[str(cell).upper() for cell in row] for row in grid]
+        # Keep multi-letter tiles intact; normalize to UPPERCASE
+        self.grid = [[str(cell).upper() for cell in row] for row in (grid or [])]
         self.rows = len(self.grid)
         self.cols = len(self.grid[0]) if self.rows else 0
 
     def setDictionary(self, words):
-        up = [str(w).upper() for w in words if w]
-        self.dictionary = set(up)
-        # Build prefix set for pruning
-        prefixes = set()
-        for w in up:
+        words = [str(w).upper() for w in (words or []) if w]
+        self.dictionary = set(words)
+        # prefix set for pruning
+        p = set()
+        for w in words:
             for i in range(1, len(w) + 1):
-                prefixes.add(w[:i])
-        self.prefixes = prefixes
+                p.add(w[:i])
+        self.prefixes = p
 
     def getSolution(self):
-        # Compute on demand so tests that call getSolution() directly work
+        # Compute on demand so outside tests can just call this
         return self.solution()
 
     # ----- solver -----
@@ -59,13 +57,12 @@ class Boggle:
                         yield nr, nc
 
         def dfs(r, c, prefix):
-            word = prefix + self.grid[r][c]  # multi-letter tile support
+            # Tiles can be multi-letter: "QU", "ST", "IE", etc.
+            word = prefix + self.grid[r][c]
             if word not in self.prefixes:
-                return  # prune if no dictionary word starts with this
-
+                return
             if len(word) >= min_len and word in self.dictionary:
                 found.add(word)
-
             visited[r][c] = True
             for nr, nc in neighbors(r, c):
                 if not visited[nr][nc]:
@@ -80,17 +77,8 @@ class Boggle:
         return self._solution
 
 
-# Demo main (ignored by autograder; safe to leave)
-def main():
-    grid = [
-        ["A", "B", "C"],
-        ["D", "E", "F"],
-        ["G", "H", "I"],
-    ]
-    dictionary = ["ABC", "ABE", "ABDHIE", "FED", "AGE"]
-    game = Boggle(grid, dictionary)
-    print(game.getSolution())
-
-
+# Optional demo; autograders ignore this but it’s handy locally.
 if __name__ == "__main__":
-    main()
+    grid = [["A", "B"], ["C", "D"]]
+    dictionary = ["ABC", "ABD"]
+    print(Boggle(grid, dictionary).getSolution())
