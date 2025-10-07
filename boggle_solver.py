@@ -17,7 +17,6 @@ class Boggle:
         if dictionary is not None:
             self.setDictionary(dictionary)
 
-    # ----- API required by assignment -----
     def setGrid(self, grid):
         # Keep multi-letter tiles intact; normalize to UPPERCASE
         self.grid = [[str(cell).upper() for cell in row] for row in (grid or [])]
@@ -75,10 +74,3 @@ class Boggle:
 
         self._solution = sorted(found)
         return self._solution
-
-
-# Optional demo; autograders ignore this but it’s handy locally.
-if __name__ == "__main__":
-    grid = [["A", "B"], ["C", "D"]]
-    dictionary = ["ABC", "ABD"]
-    print(Boggle(grid, dictionary).getSolution())
